@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>团队协作中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 28px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .switch-btn {
+            background: none;
+            color: #667eea;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: 15px;
+            display: block;
+            width: 100%;
+            padding: 10px;
+        }
+        
+        .dashboard {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            min-height: 80vh;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .main-content {
+            display: flex;
+            min-height: 600px;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-right: 1px solid #dee2e6;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 30px;
+        }
+        
+        .project-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            border-left: 4px solid #007bff;
+            transition: all 0.3s ease;
+        }
+        
+        .project-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .project-item.active {
+            background: #007bff;
+            color: white;
+        }
+        
+        .board-columns {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .board-column {
+            flex: 1;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 500px;
+        }
+        
+        .column-todo { background: #f8f9fa; }
+        .column-inprogress { background: #e3f2fd; }
+        .column-done { background: #e8f5e8; }
+        
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+        }
+        
+        .task-card {
+            background: white;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #007bff;
+            cursor: move;
+        }
+        
+        .task-card h5 {
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .task-card p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .priority {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .priority-high { background: #ffebee; color: #c62828; border-left-color: #c62828; }
+        .priority-medium { background: #fff3e0; color: #ef6c00; border-left-color: #ef6c00; }
+        .priority-low { background: #e8f5e8; color: #2e7d32; border-left-color: #2e7d32; }
+        
+        .task-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            position: relative;
+        }
+        
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        .demo-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div id="loginPage" class="login-container">
+        <h2>👥 团队协作中心</h2>
+        <div id="alertContainer"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label>邮箱地址</label>
+                <input type="email" id="email" placeholder="请输入您的邮箱" required>
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="password" placeholder="请输入密码" required>
+            </div>
+            <button type="submit" class="btn">登录</button>
+        </form>
+        
+        <form id="registerForm" class="hidden">
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="username" placeholder="请输入用户名" required>
+            </div>
+            <div class="form-group">
+                <label>邮箱地址</label>
+                <input type="email" id="regEmail" placeholder="请输入邮箱" required>
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="regPassword" placeholder="至少6位密码" required>
+            </div>
+            <button type="submit" class="btn">注册</button>
+        </form>
+        
+        <button class="switch-btn" onclick="toggleForms()">切换到注册</button>
+        
+        <div class="demo-section">
+            <p>或者快速体验演示模式</p>
+            <button class="btn btn-secondary" onclick="demoLogin()">演示登录</button>
+        </div>
+    </div>
+
+    <!-- 主面板 -->
+    <div id="dashboard" class="dashboard hidden">
+        <header>
+            <div class="header-left">
+                <h1>👥 团队协作中心</h1>
+                <p>高效协作，轻松管理</p>
+            </div>
+            <div class="user-info">
+                <span id="userWelcome">欢迎, 用户!</span>
+                <button class="btn btn-secondary" onclick="logout()">退出登录</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3>📂 我的项目</h3>
+                    <button class="btn" onclick="showCreateProjectModal()" style="padding: 8px 12px;">+ 新建</button>
+                </div>
+                <div id="projectList">
+                    <!-- 项目列表会在这里显示 -->
+                </div>
+            </div>
+
+            <div class="content">
+                <div id="projectView">
+                    <div style="text-align: center; padding: 50px;">
+                        <h2>🎯 欢迎使用团队协作中心</h2>
+                        <p style="color: #666; margin: 20px 0;">选择一个项目开始管理您的任务，或者创建新项目</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建项目模态框 -->
+    <div id="createProjectModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCreateProjectModal()">&times;</span>
+            <h3>创建新项目</h3>
+            <form id="createProjectForm">
+                <div class="form-group">
+                    <label>项目名称</label>
+                    <input type="text" id="projectName" placeholder="输入项目名称" required>
+                </div>
+                <div class="form-group">
+                    <label>项目描述</label>
+                    <input type="text" id="projectDescription" placeholder="输入项目描述">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateProjectModal()">取消</button>
+                    <button type="submit" class="btn">创建项目</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 创建任务模态框 -->
+    <div id="createTaskModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCreateTaskModal()">&times;</span>
+            <h3>创建新任务</h3>
+            <form id="createTaskForm">
+                <div class="form-group">
+                    <label>任务标题</label>
+                    <input type="text" id="taskTitle" placeholder="输入任务标题" required>
+                </div>
+                <div class="form-group">
+                    <label>任务描述</label>
+                    <input type="text" id="taskDescription" placeholder="输入任务描述">
+                </div>
+                <div class="form-group">
+                    <label>优先级</label>
+                    <select id="taskPriority" class="form-group input">
+                        <option value="high">高优先级</option>
+                        <option value="medium" selected>中优先级</option>
+                        <option value="low">低优先级</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateTaskModal()">取消</button>
+                    <button type="submit" class="btn">创建任务</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentUser = null;
+        let currentToken = null;
+        let currentProjects = [];
+        let currentTasks = [];
+        let selectedProjectId = null;
+
+        // 显示提示信息
+        function showAlert(message, type = 'success') {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        // 切换登录/注册表单
+        function toggleForms() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const switchBtn = document.querySelector('.switch-btn');
+            
+            if (loginForm.classList.contains('hidden')) {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                switchBtn.textContent = '切换到注册';
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                switchBtn.textContent = '切换到登录';
+            }
+        }
+
+        // 处理登录
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    currentUser = data.user;
+                    currentToken = data.token;
+                    localStorage.setItem('token', data.token);
+                    showDashboard();
+                    loadProjects();
+                    showAlert('登录成功！', 'success');
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                showAlert('无法连接到服务器，请确保后端正在运行', 'error');
+            }
+        });
+
+        // 处理注册
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showAlert('注册成功！请登录', 'success');
+                    toggleForms();
+                    // 清空注册表单
+                    document.getElementById('username').value = '';
+                    document.getElementById('regEmail').value = '';
+                    document.getElementById('regPassword').value = '';
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                showAlert('注册失败，请确保后端服务器正在运行', 'error');
+            }
+        });
+
+        // 演示登录
+        function demoLogin() {
+            currentUser = { username: '演示用户', email: 'demo@example.com' };
+            showDashboard();
+            loadProjects();
+            showAlert('演示模式已启动！使用模拟数据。', 'success');
+        }
+
+        // 显示主面板
+        function showDashboard() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('userWelcome').textContent = `欢迎, ${currentUser.username}!`;
+        }
+
+        // 加载项目
+        async function loadProjects() {
+            if (!currentToken) {
+                // 演示模式使用模拟数据
+                currentProjects = [
+                    { id: 1, name: '演示项目', description: '这是一个演示项目' }
+                ];
+                displayProjects();
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/projects', {
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    currentProjects = await response.json();
+                    displayProjects();
+                } else {
+                    throw new Error('Failed to load projects');
+                }
+            } catch (error) {
+                showAlert('加载项目失败', 'error');
+            }
+        }
+
+        // 显示项目列表
+        function displayProjects() {
+            const projectList = document.getElementById('projectList');
+            projectList.innerHTML = '';
+            
+            currentProjects.forEach(project => {
+                const projectItem = document.createElement('div');
+                projectItem.className = 'project-item';
+                projectItem.innerHTML = `
+                    <strong>${project.name}</strong>
+                    <p style="font-size: 12px; color: #666;">${project.description}</p>
+                `;
+                projectItem.onclick = () => loadTasks(project.id);
+                projectList.appendChild(projectItem);
+            });
+        }
+
+        // 加载任务
+        async function loadTasks(projectId) {
+            selectedProjectId = projectId;
+            
+            if (!currentToken) {
+                // 演示模式使用模拟数据
+                currentTasks = [
+                    { id: 1, title: '示例任务', status: 'todo', assignee: '演示用户', priority: 'medium' }
+                ];
+                displayTasks(projectId);
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/projects/${projectId}/tasks`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    currentTasks = await response.json();
+                    displayTasks(projectId);
+                } else {
+                    throw new Error('Failed to load tasks');
+                }
+            } catch (error) {
+                showAlert('加载任务失败', 'error');
+            }
+        }
+
+        // 显示任务看板
+        function displayTasks(projectId) {
+            const project = currentProjects.find(p => p.id === projectId);
+            const projectBoard = document.getElementById('projectView');
+            
+            projectBoard.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3>项目看板 - ${project.name}</h3>
+                    <button class="btn" onclick="showCreateTaskModal()">+ 新建任务</button>
+                </div>
+                <div class="board-columns">
+                    <div class="board-column column-todo">
+                        <div class="column-header">
+                            <h4>待办</h4>
+                            <span>${currentTasks.filter(t => t.status === 'todo').length} 任务</span>
+                        </div>
+                        ${currentTasks.filter(task => task.status === 'todo').map(task => `
+                            <div class="task-card" draggable="true" ondragstart="dragStart(event, ${task.id})">
+                                <h5>${task.title}</h5>
+                                <p>${task.description}</p>
+                                <p>负责人: ${task.assignee}</p>
+                                <span class="priority priority-${task.priority}">
+                                    ${task.priority === 'high' ? '高优先级' : task.priority === 'medium' ? '中优先级' : '低优先级'}
+                                </span>
+                                <div class="task-actions">
+                                    <button class="btn-small btn-success" onclick="updateTaskStatus(${task.id}, 'inprogress')">开始</button>
+                                    <button class="btn-small btn-danger" onclick="deleteTask(${task.id})">删除</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                        <div class="task-card" style="text-align: center; color: #666; cursor: pointer;" onclick="showCreateTaskModal()">
+                            + 添加任务
+                        </div>
+                    </div>
+                    
+                    <div class="board-column column-inprogress">
+                        <div class="column-header">
+                            <h4>进行中</h4>
+                            <span>${currentTasks.filter(t => t.status === 'inprogress').length} 任务</span>
+                        </div>
+                        ${currentTasks.filter(task => task.status === 'inprogress').map(task => `
+                            <div class="task-card" draggable="true" ondragstart="dragStart(event, ${task.id})">
+                                <h5>${task.title}</h5>
+                                <p>${task.description}</p>
+                                <p>负责人: ${task.assignee}</p>
+                                <span class="priority priority-${task.priority}">
+                                    ${task.priority === 'high' ? '高优先级' : task.priority === 'medium' ? '中优先级' : '低优先级'}
+                                </span>
+                                <div class="task-actions">
+                                    <button class="btn-small btn-success" onclick="updateTaskStatus(${task.id}, 'done')">完成</button>
+                                    <button class="btn-small" onclick="updateTaskStatus(${task.id}, 'todo')">退回</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="board-column column-done">
+                        <div class="column-header">
+                            <h4>完成</h4>
+                            <span>${currentTasks.filter(t => t.status === 'done').length} 任务</span>
+                        </div>
+                        ${currentTasks.filter(task => task.status === 'done').map(task => `
+                            <div class="task-card">
+                                <h5>${task.title}</h5>
+                                <p>${task.description}</p>
+                                <p>负责人: ${task.assignee}</p>
+                                <span class="priority priority-${task.priority}">
+                                    ${task.priority === 'high' ? '高优先级' : task.priority === 'medium' ? '中优先级' : '低优先级'}
+                                </span>
+                                <div class="task-actions">
+                                    <button class="btn-small" onclick="updateTaskStatus(${task.id}, 'inprogress')">重新打开</button>
+                                    <button class="btn-small btn-danger" onclick="deleteTask(${task.id})">删除</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // 添加拖放功能
+            addDropListeners();
+        }
+
+        // 拖放功能
+        function dragStart(event, taskId) {
+            event.dataTransfer.setData('text/plain', taskId.toString());
+        }
+
+        function addDropListeners() {
+            const columns = document.querySelectorAll('.board-column');
+            columns.forEach(column => {
+                column.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+                
+                column.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const taskId = parseInt(e.dataTransfer.getData('text/plain'));
+                    const status = getStatusFromColumn(e.target.closest('.board-column'));
+                    if (status) {
+                        updateTaskStatus(taskId, status);
+                    }
+                });
+            });
+        }
+
+        function getStatusFromColumn(column) {
+            if (column.classList.contains('column-todo')) return 'todo';
+            if (column.classList.contains('column-inprogress')) return 'inprogress';
+            if (column.classList.contains('column-done')) return 'done';
+            return null;
+        }
+
+        // 更新任务状态
+        async function updateTaskStatus(taskId, newStatus) {
+            if (!currentToken) {
+                // 演示模式直接更新本地数据
+                const task = currentTasks.find(t => t.id === taskId);
+                if (task) {
+                    task.status = newStatus;
+                    displayTasks(selectedProjectId);
+                }
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                if (response.ok) {
+                    showAlert('任务状态更新成功', 'success');
+                    loadTasks(selectedProjectId);
+                } else {
+                    throw new Error('Failed to update task');
+                }
+            } catch (error) {
+                showAlert('更新任务状态失败', 'error');
+            }
+        }
+
+        // 删除任务
+        async function deleteTask(taskId) {
+            if (!confirm('确定要删除这个任务吗？')) return;
+
+            if (!currentToken) {
+                // 演示模式直接更新本地数据
+                currentTasks = currentTasks.filter(t => t.id !== taskId);
+                displayTasks(selectedProjectId);
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    showAlert('任务删除成功', 'success');
+                    loadTasks(selectedProjectId);
+                } else {
+                    throw new Error('Failed to delete task');
+                }
+            } catch (error) {
+                showAlert('删除任务失败', 'error');
+            }
+        }
+
+        // 模态框功能
+        function showCreateProjectModal() {
+            document.getElementById('createProjectModal').style.display = 'block';
+        }
+
+        function closeCreateProjectModal() {
+            document.getElementById('createProjectModal').style.display = 'none';
+            document.getElementById('createProjectForm').reset();
+        }
+
+        function showCreateTaskModal() {
+            if (!selectedProjectId) {
+                showAlert('请先选择一个项目', 'error');
+                return;
+            }
+            document.getElementById('createTaskModal').style.display = 'block';
+        }
+
+        function closeCreateTaskModal() {
+            document.getElementById('createTaskModal').style.display = 'none';
+            document.getElementById('createTaskForm').reset();
+        }
+
+        // 创建项目
+        document.getElementById('createProjectForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('projectName').value;
+            const description = document.getElementById('projectDescription').value;
+
+            if (!currentToken) {
+                // 演示模式
+                const newProject = {
+                    id: Date.now(),
+                    name,
+                    description,
+                    userId: 1
+                };
+                currentProjects.push(newProject);
+                displayProjects();
+                closeCreateProjectModal();
+                showAlert('项目创建成功（演示模式）', 'success');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/projects', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, description })
+                });
+                
+                if (response.ok) {
+                    closeCreateProjectModal();
+                    loadProjects();
+                    showAlert('项目创建成功', 'success');
+                } else {
+                    throw new Error('Failed to create project');
+                }
+            } catch (error) {
+                showAlert('创建项目失败', 'error');
+            }
+        });
+
+        // 创建任务
+        document.getElementById('createTaskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+            const priority = document.getElementById('taskPriority').value;
+
+            if (!currentToken) {
+                // 演示模式
+                const newTask = {
+                    id: Date.now(),
+                    title,
+                    description,
+                    priority,
+                    status: 'todo',
+                    assignee: currentUser.username
+                };
+                currentTasks.push(newTask);
+                displayTasks(selectedProjectId);
+                closeCreateTaskModal();
+                showAlert('任务创建成功（演示模式）', 'success');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/projects/${selectedProjectId}/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, description, priority })
+                });
+                
+                if (response.ok) {
+                    closeCreateTaskModal();
+                    loadTasks(selectedProjectId);
+                    showAlert('任务创建成功', 'success');
+                } else {
+                    throw new Error('Failed to create task');
+                }
+            } catch (error) {
+                showAlert('创建任务失败', 'error');
+            }
+        });
+
+        // 退出登录
+        function logout() {
+            currentUser = null;
+            currentToken = null;
+            currentProjects = [];
+            currentTasks = [];
+            selectedProjectId = null;
+            localStorage.removeItem('token');
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+            showAlert('已退出登录', 'success');
+        }
+
+        // 初始化检查token
+        function init() {
+            const savedToken = localStorage.getItem('token');
+            if (savedToken) {
+                // 这里应该验证token，简化处理直接进入演示模式
+                demoLogin();
+            }
+        }
+
+        // 页面加载时初始化
+        init();
+    </script>
+</body>
+</html>
